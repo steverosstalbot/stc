@@ -1,0 +1,45 @@
+
+digraph G {
+compound = true;
+"70" [ label="70: AUTHORISERSVC START" ];
+"70" -> "72" [ label="WRAP CLIENT requestor()" ];
+"72" [ label="72: WRAPPED" ];
+"72" -> "73" [ label="CONNECT TO filtersvc()" ];
+"73" [ label="73: CONNECTED" ];
+"73" -> "74" [ label="RECEIVE FROM requestor getsuppliers(uuid)" ];
+"74" [ label="74: CHECK getsuppliers" ];
+"74" -> "75" [ label="SEND TO requestor deny()" ];
+"75" [ label="75: DENIED" ];
+"75" -> "73" [ label="SEND TO filtersvc 0()" ];
+"74" -> "76" [ label="CONNECT TO suppliersvc()" ];
+"76" [ label="76: CONNECTED" ];
+"76" -> "77" [ label="SEND TO suppliersvc getsuppliers()" ];
+"77" [ label="77: GET SUPPLIERS" ];
+"77" -> "78" [ label="RECEIVE FROM suppliersvc suppliers()" ];
+"78" [ label="78: GOT SUPPLIERS" ];
+"78" -> "79" [ label="SEND TO filtersvc filterSupplier(usercontext, filters, supplierdetails)" ];
+"79" [ label="79: FILTER" ];
+"79" -> "80" [ label="RECEIVE FROM filtersvc filtered()" ];
+"80" [ label="80: FILTERED" ];
+"80" -> "81" [ label="DISCONNECT FROM suppliersvc()" ];
+"81" [ label="81: DISCONNECTED" ];
+"81" -> "73" [ label="SEND TO requestor suppliers()" ];
+"73" -> "82" [ label="RECEIVE FROM requestor getcontracts()" ];
+"82" [ label="82: GET CONTRACTS" ];
+"82" -> "83" [ label="SEND TO requestor deny()" ];
+"83" [ label="83: DENIED" ];
+"83" -> "73" [ label="SEND TO filtersvc 0()" ];
+"82" -> "84" [ label="CONNECT TO contractsvc()" ];
+"84" [ label="84: CONNECTED" ];
+"84" -> "85" [ label="SEND TO contractsvc getcontracts()" ];
+"85" [ label="85: GET CONTRACTS" ];
+"85" -> "86" [ label="RECEIVE FROM contractsvc contracts()" ];
+"86" [ label="86: GOT CONTRACTS" ];
+"86" -> "87" [ label="SEND TO filtersvc filterContract(usercontext, filters, contractdetails)" ];
+"87" [ label="87: FILTER" ];
+"87" -> "88" [ label="RECEIVE FROM filtersvc filtered()" ];
+"88" [ label="88: FILTERED" ];
+"88" -> "89" [ label="DISCONNECT FROM contractsvc()" ];
+"89" [ label="89: DISCONNECTED" ];
+"89" -> "73" [ label="SEND TO requestor contracts()" ];
+}

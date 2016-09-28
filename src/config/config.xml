@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FSM>
+
+<STATE id = "STATE_START">
+    <MESSAGE id = "connectionRequestFrom_requestor"" action = "com.thoughtworks.org.connectionRequestFrom" nextState = "STATE_STARTED" />
+</STATE>
+<STATE id = "STATE_STARTED">
+    <MESSAGE id = "connectionRequestTo_filtersvc"" action = "com.thoughtworks.org.connectionRequestTo" nextState = "STATE_CONNECTION_REQUEST_TO_filtersvc_OBTAINED" />
+</STATE>
+<STATE id = "STATE_CONNECTION_REQUEST_TO_filtersvc_OBTAINED">
+    <MESSAGE id = "getSuppliers_FROM_requestor_WITH_uuid"" action = "com.thoughtworks.org.receiveMessage" nextState = "STATE_RECEIVED_getSuppliers_FROM_requestor" />
+    <MESSAGE id = "getContracts_FROM_requestor_WITH_uuid"" action = "com.thoughtworks.org.receiveMessage" nextState = "STATE_RECEIVED_getContracts_FROM_requestor" />
+</STATE>
+<STATE id = "STATE_RECEIVED_getSuppliers_FROM_requestor">
+    <MESSAGE id = "deny_TO_requestor"" action = "com.thoughtworks.org.sendMessage" nextState = "STATE_SENT_deny_TO_requestor" />
+    <MESSAGE id = "connectionRequestTo_suppliersvc"" action = "com.thoughtworks.org.connectionRequestTo" nextState = "STATE_CONNECTION_REQUEST_TO_suppliersvc_OBTAINED" />
+</STATE>
+<STATE id = "STATE_SENT_deny_TO_requestor">
+    <MESSAGE id = "exit_TO_filtersvc"" action = "com.thoughtworks.org.sendMessage" nextState = "STATE_SENT_exit_TO_filtersvc" />
+</STATE>
+<STATE id = "STATE_CONNECTION_REQUEST_TO_suppliersvc_OBTAINED">
+    <MESSAGE id = "getsuppliers_TO_suppliersvc_USING_uuid"" action = "com.thoughtworks.org.sendMessage" nextState = "STATE_SENT_getsuppliers_TO_suppliersvc" />
+</STATE>
+<STATE id = "STATE_SENT_getsuppliers_TO_suppliersvc">
+    <MESSAGE id = "getsuppliersRtn_FROM_suppliersvc_WITH_supplierdetails"" action = "com.thoughtworks.org.receiveMessage" nextState = "STATE_RECEIVED_getsuppliersRtn_FROM_suppliersvc" />
+</STATE>
+<STATE id = "STATE_RECEIVED_getsuppliersRtn_FROM_suppliersvc">
+    <MESSAGE id = "filterSupplier_TO_filtersvc_USING_usercontext, filters, supplierdetails"" action = "com.thoughtworks.org.sendMessage" nextState = "STATE_SENT_filterSupplier_TO_filtersvc" />
+</STATE>
+<STATE id = "STATE_SENT_filterSupplier_TO_filtersvc">
+    <MESSAGE id = "filtered_FROM_filtersvc"" action = "com.thoughtworks.org.receiveMessage" nextState = "STATE_RECEIVED_filtered_FROM_filtersvc" />
+</STATE>
+<STATE id = "STATE_RECEIVED_filtered_FROM_filtersvc">
+    <MESSAGE id = "disconnectFrom_suppliersvc"" action = "com.thoughtworks.org.disconnectFrom" nextState = "STATE_CONNECTION_TO_suppliersvc_TERMINATED" />
+</STATE>
+<STATE id = "STATE_CONNECTION_TO_suppliersvc_TERMINATED">
+    <MESSAGE id = "getSuppliersRtn_TO_requestor"" action = "com.thoughtworks.org.sendMessage" nextState = "STATE_SENT_getSuppliersRtn_TO_requestor" />
+</STATE>
+<STATE id = "STATE_RECEIVED_getContracts_FROM_requestor">
+    <MESSAGE id = "deny_TO_requestor"" action = "com.thoughtworks.org.sendMessage" nextState = "STATE_SENT_deny_TO_requestor" />
+    <MESSAGE id = "connectionRequestTo_contractsvc"" action = "com.thoughtworks.org.connectionRequestTo" nextState = "STATE_CONNECTION_REQUEST_TO_contractsvc_OBTAINED" />
+</STATE>
+<STATE id = "STATE_SENT_deny_TO_requestor">
+    <MESSAGE id = "exit_TO_filtersvc"" action = "com.thoughtworks.org.sendMessage" nextState = "STATE_SENT_exit_TO_filtersvc" />
+</STATE>
+<STATE id = "STATE_CONNECTION_REQUEST_TO_contractsvc_OBTAINED">
+    <MESSAGE id = "getContracts_TO_contractsvc_USING_uuid"" action = "com.thoughtworks.org.sendMessage" nextState = "STATE_SENT_getContracts_TO_contractsvc" />
+</STATE>
+<STATE id = "STATE_SENT_getContracts_TO_contractsvc">
+    <MESSAGE id = "getContractsRtn_FROM_contractsvc_WITH_contractdetails"" action = "com.thoughtworks.org.receiveMessage" nextState = "STATE_RECEIVED_getContractsRtn_FROM_contractsvc" />
+</STATE>
+<STATE id = "STATE_RECEIVED_getContractsRtn_FROM_contractsvc">
+    <MESSAGE id = "filterContract_TO_filtersvc_USING_usercontext, filters, contractdetails"" action = "com.thoughtworks.org.sendMessage" nextState = "STATE_SENT_filterContract_TO_filtersvc" />
+</STATE>
+<STATE id = "STATE_SENT_filterContract_TO_filtersvc">
+    <MESSAGE id = "filtered_FROM_filtersvc"" action = "com.thoughtworks.org.receiveMessage" nextState = "STATE_RECEIVED_filtered_FROM_filtersvc" />
+</STATE>
+<STATE id = "STATE_RECEIVED_filtered_FROM_filtersvc">
+    <MESSAGE id = "disconnectFrom_contractsvc"" action = "com.thoughtworks.org.disconnectFrom" nextState = "STATE_CONNECTION_TO_contractsvc_TERMINATED" />
+</STATE>
+<STATE id = "STATE_CONNECTION_TO_contractsvc_TERMINATED">
+    <MESSAGE id = "contracts_TO_requestor"" action = "com.thoughtworks.org.sendMessage" nextState = "STATE_SENT_contracts_TO_requestor" />
+</STATE>
+
+</FSM>

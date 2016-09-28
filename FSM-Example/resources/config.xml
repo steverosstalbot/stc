@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FSM>
+
+<STATE id = "START_authorizationsvc">
+	<MESSAGE id = "accept_connection" action = "org.com.tw.accept_connection" nextState = "__accept_connection__from_requestor_DONE"/>
+</STATE>
+<STATE id = "__accept_connection__from_requestor_DONE">
+	<MESSAGE id = "request_connection" action = "org.com.tw.request_connection" nextState = "__request_connection__to_filtersvc_DONE"/>
+</STATE>
+<STATE id = "__request_connection__to_filtersvc_DONE">
+	<MESSAGE id = "receiveMessage(getSuppliers(uuid))" action = "org.com.tw.receiveMessage" nextState = "__receiveMessage(getSuppliers(uuid))__from_requestor_DONE"/>
+	<MESSAGE id = "receiveMessage(getContracts(uuid))" action = "org.com.tw.receiveMessage" nextState = "__receiveMessage(getContracts(uuid))__from_requestor_DONE"/>
+</STATE>
+<STATE id = "__receiveMessage(getSuppliers(uuid))__from_requestor_DONE">
+	<MESSAGE id = "sendMessage(deny())" action = "org.com.tw.sendMessage" nextState = "__sendMessage(deny())__to_requestor_DONE"/>
+	<MESSAGE id = "request_connection" action = "org.com.tw.request_connection" nextState = "__request_connection__to_suppliersvc_DONE"/>
+</STATE>
+<STATE id = "__sendMessage(deny())__to_requestor_DONE">
+	<MESSAGE id = "sendMessage(exit())" action = "org.com.tw.sendMessage" nextState = "__request_connection__to_filtersvc_DONE"/>
+</STATE>
+<STATE id = "__request_connection__to_suppliersvc_DONE">
+	<MESSAGE id = "sendMessage(getsuppliers(uuid))" action = "org.com.tw.sendMessage" nextState = "__sendMessage(getsuppliers(uuid))__to_suppliersvc_DONE"/>
+</STATE>
+<STATE id = "__sendMessage(getsuppliers(uuid))__to_suppliersvc_DONE">
+	<MESSAGE id = "receiveMessage(getsuppliersRtn(supplierdetails))" action = "org.com.tw.receiveMessage" nextState = "__receiveMessage(getsuppliersRtn(supplierdetails))__from_suppliersvc_DONE"/>
+</STATE>
+<STATE id = "__receiveMessage(getsuppliersRtn(supplierdetails))__from_suppliersvc_DONE">
+	<MESSAGE id = "sendMessage(filterSupplier(usercontext, filters, supplierdetails))" action = "org.com.tw.sendMessage" nextState = "__sendMessage(filterSupplier(usercontext, filters, supplierdetails))__to_filtersvc_DONE"/>
+</STATE>
+<STATE id = "__sendMessage(filterSupplier(usercontext, filters, supplierdetails))__to_filtersvc_DONE">
+	<MESSAGE id = "receiveMessage(filtered())" action = "org.com.tw.receiveMessage" nextState = "__receiveMessage(filtered())__from_filtersvc_DONE"/>
+</STATE>
+<STATE id = "__receiveMessage(filtered())__from_filtersvc_DONE">
+	<MESSAGE id = "request_disconnection" action = "org.com.tw.request_disconnection" nextState = "__request_disconnection__from_suppliersvc_DONE"/>
+</STATE>
+<STATE id = "__request_disconnection__from_suppliersvc_DONE">
+	<MESSAGE id = "sendMessage(getSuppliersRtn())" action = "org.com.tw.sendMessage" nextState = "__request_connection__to_filtersvc_DONE"/>
+</STATE>
+<STATE id = "__receiveMessage(getContracts(uuid))__from_requestor_DONE">
+	<MESSAGE id = "sendMessage(deny())" action = "org.com.tw.sendMessage" nextState = "__sendMessage(deny())__to_requestor_DONE"/>
+	<MESSAGE id = "request_connection" action = "org.com.tw.request_connection" nextState = "__request_connection__to_contractsvc_DONE"/>
+</STATE>
+<STATE id = "__sendMessage(deny())__to_requestor_DONE">
+	<MESSAGE id = "sendMessage(exit())" action = "org.com.tw.sendMessage" nextState = "__request_connection__to_filtersvc_DONE"/>
+</STATE>
+<STATE id = "__request_connection__to_contractsvc_DONE">
+	<MESSAGE id = "sendMessage(getContracts(uuid))" action = "org.com.tw.sendMessage" nextState = "__sendMessage(getContracts(uuid))__to_contractsvc_DONE"/>
+</STATE>
+<STATE id = "__sendMessage(getContracts(uuid))__to_contractsvc_DONE">
+	<MESSAGE id = "receiveMessage(getContractsRtn(contractdetails))" action = "org.com.tw.receiveMessage" nextState = "__receiveMessage(getContractsRtn(contractdetails))__from_contractsvc_DONE"/>
+</STATE>
+<STATE id = "__receiveMessage(getContractsRtn(contractdetails))__from_contractsvc_DONE">
+	<MESSAGE id = "sendMessage(filterContract(usercontext, filters, contractdetails))" action = "org.com.tw.sendMessage" nextState = "__sendMessage(filterContract(usercontext, filters, contractdetails))__to_filtersvc_DONE"/>
+</STATE>
+<STATE id = "__sendMessage(filterContract(usercontext, filters, contractdetails))__to_filtersvc_DONE">
+	<MESSAGE id = "receiveMessage(filtered())" action = "org.com.tw.receiveMessage" nextState = "__receiveMessage(filtered())__from_filtersvc_DONE"/>
+</STATE>
+<STATE id = "__receiveMessage(filtered())__from_filtersvc_DONE">
+	<MESSAGE id = "request_disconnection" action = "org.com.tw.request_disconnection" nextState = "__request_disconnection__from_contractsvc_DONE"/>
+</STATE>
+<STATE id = "__request_disconnection__from_contractsvc_DONE">
+	<MESSAGE id = "sendMessage(contracts())" action = "org.com.tw.sendMessage" nextState = "__request_connection__to_filtersvc_DONE"/>
+</STATE>
+
+</FSM>
