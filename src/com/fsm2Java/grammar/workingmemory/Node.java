@@ -78,9 +78,13 @@ public class Node {
 
 	public String toString()
 	{
-		String s = "NODE: " + getId() + ", " + getStateName() + 
-					", Predessors(" + getPredessors().size() +  ")" +
-					", Successors(" + getSuccessors().size() + ")";
+		String s = "NODE:\n" + 
+				"	getId(" + getId() + ")\n" + 
+				"	getName(" + getName() + ")\n" +
+				"	getStateName(" + getStateName() + ")\n" +
+				"	getDescription(" + getDescription() + ")" +
+				"	Num Predessors(" + getPredessors().size() +  ")\n" +
+				"	Num Successors(" + getSuccessors().size() + ")";
 
 		return s;
 	}

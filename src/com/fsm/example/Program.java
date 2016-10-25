@@ -6,49 +6,71 @@ package com.fsm.example;
 import Action.FSMAction;
 import States.FSMStateAction;
 import FSM.FSM;
+
 import java.io.*;
 import java.util.logging.*;
-import java.util.logging.Level;
+
 import org.xml.sax.*;
+
 import javax.xml.parsers.*;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
 
+import com.fsm.example.fakedns.*;
 
 public class Program 
 {
 
-    private String _configFileName = "/Users/stalbot/Documents/workspace/FSM-Example/resources/config.xml";
-
+    private String m_configFileName = "/Users/stalbot/Documents/workspace/FSM-Example/resources/config.xml";
+    private String m_machineName = "127.0.0.1";
+    private String m_portNumber = "9091";
+    
     public Program()
     {
     	
     }
     public Program(String config)
     {
-    	_configFileName = config;
+    	setConfigFileName(config);
     }
-    public  void testFSM() 
+    public Program(String config, String machine, String port)
+    {
+    	setConfigFileName(config);
+    	setMachineName(machine);
+    	setPortNumber(port);
+    }
+    
+    public void setConfigFileName(String f) { m_configFileName = f; }
+    public String getConfigFileName() { return m_configFileName; }
+	public void setMachineName(String m) { m_machineName = m; }
+	public String getMachineName() { return m_machineName; }
+	public void setPortNumber(String p) { m_portNumber = p; }
+	public String getPortNumber() { return m_portNumber; }
+	
+    public  void runFSM() 
     {
         try 
         {
-        	System.out.println("Open config file " + _configFileName);
+        	System.out.println("Open config file " + getConfigFileName());
         	System.out.println("Class: " + this.getClass().getName());
         	System.out.println("ClassLoader: " + this.getClass().getClassLoader().getClass().getName());
-        	System.out.println("resource stream: " + this.getClass().getClassLoader().getResourceAsStream(_configFileName));
+        	System.out.println("resource stream: " + this.getClass().getClassLoader().getResourceAsStream(getConfigFileName()));
         	InputStream inputS = null;
     		try 
     		{
 
-    			FileInputStream m_fileReader = new FileInputStream(_configFileName);
+    			FileInputStream m_fileReader = new FileInputStream(getConfigFileName());
     			inputS = m_fileReader;
     			if (m_fileReader != null)
-    				System.out.println("Got file " + _configFileName);
+    				System.out.println("Got file " + getConfigFileName());
     			else
-    				System.out.println("Not got file!!!" + _configFileName);
+    				System.out.println("Not got file!!!" + getConfigFileName());
     		} catch (IOException e) {
     			e.printStackTrace();
     		}
@@ -65,8 +87,17 @@ public class Program
         	// state machine and use introspection to do it.
         	//
             FSM f = new FSM(inputS, null);
+            
+            f.setAction("receiveMessage(getSuppliers(uuid))", new FSMAction() {
+                @Override
+                public boolean action(String curState, String message, String nextState, Object args) {
+                    System.out.println("Customized receiveMessage(getSuppliers(uuid))!");
+                    return true;
+                }
+            });
         	
             String command = "";
+            String message = "";
             String currentState = f.getCurrentState();
             do
             {
@@ -75,33 +106,80 @@ public class Program
             	currentState = f.getCurrentState();
             	//nextStates = f.getValidActions();
             	nextStates=f.getValidCommands();
-            	System.out.println("========================================");
             	System.out.println("Current State: " + f.getCurrentState() + "\n");
-            	System.out.println("Valid next commands from here are:");
-            	System.out.print("    ");
-            	for (int i=0; (i < nextStates.length); i++)
-            		System.out.print("	<" + nextStates[i].trim() + ">\n");
-            	System.out.println();
-            	System.out.println("========================================");
-            	
-            	System.out.print("Command: ");
-            	try
+            	if (nextStates.length > 1)
             	{
-            	    BufferedReader bufferRead = new BufferedReader(new InputStreamReader(System.in));
-            	    command = bufferRead.readLine();
-                	if (f.ProcessFSM(command) == null)
-                	{
-                		System.out.println("*** ERROR ***");
-                		System.out.println("    " + command + " has no matching state transition");
+            		Boolean receiveChoices = true;
+            		for (int i=0; (i < nextStates.length); i++)
+            		{
+            			receiveChoices = receiveChoices && nextStates[i].trim().startsWith("receiveMessage");
+            			message = message + "<" + nextStates[i].trim() + ">";
+            		}
+            		/*
+            		if (!receiveChoices)
+            		{
+            		*/
+            			System.out.println("========================================");
+            			System.out.println("Valid next commands from here are: ");
+            			System.out.print("    ");
+            			for (int i=0; (i < nextStates.length); i++)
+            			{
+            				System.out.print("	<" + nextStates[i].trim() + ">\n");
+            			}
+            			System.out.println();
+            			System.out.println("========================================");
+            			System.out.print("Command: ");
+            		/*} else {
+            			ServerSocket listener = null;
+            			try {
+            				Integer port = new Integer(getPortNumber());
+            				listener = new ServerSocket(port);
+            			} catch (Exception e) {
+            	        	e.printStackTrace();
+            	    	}
+            			try 
+            			{
+            		        Socket socket = listener.accept();
+            		        try {
+            		        	PrintWriter out =
+            		                       new PrintWriter(socket.getOutputStream(), true);
+            		                   out.println(message);
+            		        } finally {
+            		            socket.close();
+            		        }
+            			} catch (Exception e) {
+            	        	e.printStackTrace();
+            		    } finally {
+            		    	try {
+            		            listener.close();
+            		    	} catch (Exception e) {
+            		        	e.printStackTrace();
+            		    	}
+            		    }
+            		}*/
+                	try {
+                		BufferedReader bufferRead = new BufferedReader(new InputStreamReader(System.in));
+                		command = bufferRead.readLine();
                 	}
+                	catch(IOException e)
+                	{
+                		e.printStackTrace();
+                	}	
 
+            	} else {
+            		command = nextStates[0].trim();
             	}
-            	catch(IOException e)
-            	{
-            		e.printStackTrace();
-            	}	
-
-            } while (currentState.compareTo("STOP") != 0);
+            		
+            	System.out.println("Executing " + command);
+            	if (command.compareTo("STOP") == 0)
+            		return;
+            	Thread.sleep(2000);
+                if (f.ProcessFSM(command) == null)
+                {
+                	System.out.println("*** ERROR ***");
+                	System.out.println("    " + command + " has no matching state transition");
+                }	
+            } while (command.compareTo("STOP") != 0);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -115,7 +193,7 @@ public class Program
         		 p = new Program(args[0]);
         	else 
         		 p = new Program();
-            p.testFSM();
+            p.runFSM();
         } catch (Exception ex) {
         	ex.printStackTrace();
         }

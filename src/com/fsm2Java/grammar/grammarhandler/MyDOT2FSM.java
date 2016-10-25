@@ -6,11 +6,9 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 
-
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
-
 
 import com.fsm2Java.grammar.workingmemory.*;
 
@@ -125,6 +123,40 @@ public class MyDOT2FSM {
     {
     	connectGraph();
     	normaliseGraph();
+    	Edge prev_e = null;
+    	Edge this_e = null;
+    	ArrayList<Edge> listOfe = WMSingleton.getWorkingMemory().getEdges();
+    	System.out.println("Edges - " + listOfe.size());
+
+    	for (int i=0; (i < listOfe.size()); i++)
+    	{
+    		prev_e = listOfe.get(i);
+    		for (int j=0; (j < listOfe.size()); j++)
+    		{
+    			this_e = listOfe.get(j);
+    			if ((prev_e.getName().compareTo(this_e.getName()) == 0) && this_e != prev_e)
+    			{
+    				System.out.println("IDENTICAL EDGES " + this_e + "::" + prev_e);
+    			}
+    		}
+    	}
+    	Node prev_n = null;
+    	Node this_n = null;
+    	ArrayList<Node> listOfn = WMSingleton.getWorkingMemory().getNodes();
+    	System.out.println("Nodes - " + listOfn.size());
+
+    	for (int i=0; (i < listOfn.size()); i++)
+    	{
+    		prev_n = listOfn.get(i);
+    		for (int j=0; (j < listOfn.size()); j++)
+    		{
+    			this_n = listOfn.get(j);
+    			if ((prev_n.getName().compareTo(this_n.getName()) == 0) && this_n != prev_n)
+    			{
+    				System.out.println("IDENTICAL NODES " + this_n + "::" + prev_n);
+    			}
+    		}
+    	}
     }
     
     //
@@ -267,7 +299,7 @@ public class MyDOT2FSM {
     		for (int j=0; (j < n.getSuccessors().size()); j++)
     		{
     			Edge e = n.getSuccessors().get(j);
-    			System.out.println("\t<MESSAGE id = \"" + getMethodFromAction(e.getActionName()) + "\" action = \"" + getPackagePrefix() + "." + getMethodNameFromMethod(getMethodFromAction(e.getActionName()))  + "\" nextState = \"" +
+    			System.out.println("\t<MESSAGE id = \"" + getMethodFromAction(e.getActionName()) + getRoleFromAction(e.getActionName())+ "\" action = \"" + getPackagePrefix() + "." + getMethodNameFromMethod(getMethodFromAction(e.getActionName()))  + "\" nextState = \"" +
     					e.getNextState().getName() + "\"/>");
     		}
     		System.out.println("</STATE>");
@@ -350,11 +382,11 @@ public class MyDOT2FSM {
     	int fromStart = s.lastIndexOf(fromSep);
     	if (toStart > 0)
     	{
-    		rtn = s.substring(toStart + toSep.length());
+    		rtn = toSep + s.substring(toStart + toSep.length());
     	}
     	else if (fromStart > 0)
     	{
-    		rtn = s.substring(fromStart + fromSep.length());
+    		rtn = fromSep + s.substring(fromStart + fromSep.length());
     	}
     	return rtn;
     }

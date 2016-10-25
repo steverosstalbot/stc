@@ -1,0 +1,45 @@
+
+digraph G {
+compound = true;
+"70" [ label="70: src_SupplierInfoNoFairBeta_PartnershipSupplier_authorisersvc_PartnershipSupplier_authorisersvc___requestor__authorisersvc__filtersvc__suppliersvc__contractsvc_" ];
+"70" -> "72" [ label="requestor??()" ];
+"72" [ label="72: " ];
+"72" -> "73" [ label="filtersvc!!()" ];
+"73" [ label="73: src_SupplierInfoNoFairBeta_Main_authorisersvc_Main_authorisersvc___requestor__authorisersvc__filtersvc__suppliersvc__contractsvc_" ];
+"73" -> "74" [ label="requestor?getSuppliers(uuid)" ];
+"74" [ label="74: src_SupplierInfoNoFairBeta_SuppInfo_authorisersvc_SuppInfo_authorisersvc___requestor__authorisersvc__filtersvc__suppliersvc_" ];
+"74" -> "75" [ label="requestor!deny()" ];
+"75" [ label="75: " ];
+"75" -> "73" [ label="filtersvc!exit()" ];
+"74" -> "76" [ label="suppliersvc!!()" ];
+"76" [ label="76: " ];
+"76" -> "77" [ label="suppliersvc!getsuppliers(uuid)" ];
+"77" [ label="77: " ];
+"77" -> "78" [ label="suppliersvc?getsuppliersRtn(supplierdetails)" ];
+"78" [ label="78: src_SupplierInfoNoFairBeta_FilterInfo_authorisersvc_FilterInfo_authorisersvc_filterSupplier_usercontext__filters__supplierdetails___authorisersvc__filtersvc_" ];
+"78" -> "79" [ label="filtersvc!filterSupplier(usercontext, filters, supplierdetails)" ];
+"79" [ label="79: " ];
+"79" -> "80" [ label="filtersvc?filtered()" ];
+"80" [ label="80: " ];
+"80" -> "81" [ label="suppliersvc-/-()" ];
+"81" [ label="81: " ];
+"81" -> "73" [ label="requestor!getSuppliersRtn()" ];
+"73" -> "82" [ label="requestor?getContracts(uuid)" ];
+"82" [ label="82: src_SupplierInfoNoFairBeta_ContractInfo_authorisersvc_ContractInfo_authorisersvc___requestor__authorisersvc__filtersvc__contractsvc_" ];
+"82" -> "83" [ label="requestor!deny()" ];
+"83" [ label="83: " ];
+"83" -> "73" [ label="filtersvc!exit()" ];
+"82" -> "84" [ label="contractsvc!!()" ];
+"84" [ label="84: " ];
+"84" -> "85" [ label="contractsvc!getContracts(uuid)" ];
+"85" [ label="85: " ];
+"85" -> "86" [ label="contractsvc?getContractsRtn(contractdetails)" ];
+"86" [ label="86: src_SupplierInfoNoFairBeta_FilterInfo_authorisersvc_FilterInfo_authorisersvc_filterContract_usercontext__filters__contractdetails___authorisersvc__filtersvc_" ];
+"86" -> "87" [ label="filtersvc!filterContract(usercontext, filters, contractdetails)" ];
+"87" [ label="87: " ];
+"87" -> "88" [ label="filtersvc?filtered()" ];
+"88" [ label="88: " ];
+"88" -> "89" [ label="contractsvc-/-()" ];
+"89" [ label="89: " ];
+"89" -> "73" [ label="requestor!contracts()" ];
+}

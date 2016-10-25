@@ -18,8 +18,8 @@ public class Edge {
 	protected String				m_nextStateName = "NEXT_STATE";
 	protected Node					m_nextState = null;
 	protected String 				m_name = "Edge";
-	protected String 				m_to = "to";
-	protected String 				m_from = "from";
+	protected String 				m_to = null;
+	protected String 				m_from = null;
 	protected Node					m_predessor = null;
 	protected String				m_functionName = null;
 	protected ArrayList<Node>		m_successors = new ArrayList<Node>();
@@ -60,18 +60,20 @@ public class Edge {
 		WMSingleton.getWorkingMemory().addEdge(m_id,this);
 		WMSingleton.getWorkingMemory().addEdge(this);
 	}
+
 	public String getId() { return m_id; } // OK
 	public String getFromName()
 	{
-		String rtn = getId().substring(0, getId().indexOf(m_arrowhead));
-		//System.out.println("edge.getFromName(" + rtn + ")");
+		String rtn = "";
+		if (getId() != null)
+			rtn = getId().substring(0, getId().indexOf(m_arrowhead));
 		return rtn;
 	}
 	public String getToName()
 	{
-		String rtn = getId().substring(getId().indexOf(m_arrowhead)+m_arrowhead.length());
-		//System.out.println("edge.getToName(" + rtn + ")");
-
+		String rtn = "";
+		if (getId() != null)
+			rtn = getId().substring(getId().indexOf(m_arrowhead)+m_arrowhead.length());
 		return rtn;
 	}
 	public void setMessageId(String m)
@@ -105,19 +107,11 @@ public class Edge {
 		m_to = t;
 	}
 	public String getToNormal() { return m_to; }
-	public String getTo() 
-	{ 
-		return m_to.substring(2,getToNormal().length()); 
-	}
 	public void setFrom(String f)
 	{
 		m_from = f;
 	}
 	public String getFromNormal() { return m_from; }
-	public String getFrom() 
-	{ 
-		return m_from.substring("Edge from ".length()); 
-	}
 	
 	public void addPredessor(Node n)
 	{
@@ -145,7 +139,16 @@ public class Edge {
 
 	public String toString()
 	{
-		String s = "EDGE: " + getId() + ", " + getActionName() + ", " + getNextStateName();
+		String s = "EDGE:\n";
+		s = s + "	getId(" + getId() + ")\n" +
+				"	getFromName(" + getFromName() + ")\n" +
+				"	getToName(" + getToName() + ")\n" +
+				"	getMessageId(" + getMessageId() + ")\n" +
+				"	getActionName(" + getActionName() + ")\n" +
+				"	getNextStateName(" + getNextStateName() + ")\n" +
+				"	getName(" + getName() + ")\n" +
+				"	getFromNormal(" + getFromNormal() + ")\n" +
+				"	getToNormal(" + getToNormal() + ")";
 		return s;
 	}
 }

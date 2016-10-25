@@ -1,6 +1,7 @@
 package com.fsm2Java.grammar.workingmemory;
 
-import java.util.*;import java.util.ArrayList;
+import java.util.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MemoryModel {

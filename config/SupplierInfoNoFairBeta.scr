@@ -1,0 +1,73 @@
+
+module src.SupplierInfoNoFairBeta;
+
+
+type <xsd> "UserName" from "AUTH.xsd" as username;
+type <xsd> "Password" from "AUTH.xsd" as password;
+type <xsd> "UUID" from "AUTH.xsd" as uuid;
+type <xsd> "/retailhub/supplierdetails" from "Retailer.xsd" as supplierdetails;
+type <xsd> "/retailhub/contractdetails" from "Retailer.xsd" as contractdetails;
+
+type <xsd> "..." from "...xsd" as usercontext;
+type <xsd> "..." from "...xsd" as filters;
+
+
+explicit global protocol PartnershipSupplier ( role loginsvc,  requestor,  authorisersvc,  filtersvc,  suppliersvc,  contractsvc) {
+	connect requestor to loginsvc;
+	login(username, password) from requestor to loginsvc;
+	choice at loginsvc {
+		loginFailure() from loginsvc to requestor;
+		disconnect requestor and loginsvc;
+	} or {
+		loginSuccess(uuid) from loginsvc to requestor;
+		connect requestor to authorisersvc;
+		connect authorisersvc to filtersvc;
+		do Main(requestor, authorisersvc, filtersvc, suppliersvc, contractsvc);
+	}
+}
+
+aux global protocol Main ( role requestor,  authorisersvc,  filtersvc,  suppliersvc,  contractsvc ) {
+	choice at requestor { 						// GET SUPPLIER INFO
+		getSuppliers(uuid) from requestor to authorisersvc;
+		do SuppInfo(requestor, authorisersvc, filtersvc, suppliersvc);
+	} or { 								// GET CONTRACT INFO
+		getContracts(uuid) from requestor to authorisersvc;
+		do ContractInfo(requestor, authorisersvc, filtersvc, contractsvc);
+	}
+	do Main(requestor, authorisersvc, filtersvc, suppliersvc, contractsvc);
+}
+
+aux global protocol SuppInfo ( role requestor,  authorisersvc,  filtersvc,  suppliersvc ) {
+	choice at authorisersvc { 					// DENIED
+		deny() from authorisersvc to requestor;
+		exit() from authorisersvc to filtersvc;  
+	} or { 								// PREPARE FILTERED SUPPLIER INFO FOR REQUESTOR
+		connect authorisersvc to suppliersvc;
+		getsuppliers(uuid) from authorisersvc to suppliersvc;
+		getsuppliersRtn(supplierdetails) from suppliersvc to authorisersvc;
+		do FilterInfo <filterSupplier(usercontext, filters, supplierdetails)> (authorisersvc, filtersvc);
+		disconnect authorisersvc and suppliersvc;
+		getSuppliersRtn() from authorisersvc to requestor;
+	}
+}
+
+aux global protocol ContractInfo ( role requestor,  authorisersvc,  filtersvc,  contractsvc ) {
+	choice at authorisersvc { 					// DENIED
+		deny() from authorisersvc to requestor;
+		exit() from authorisersvc to filtersvc;
+	} or { 								// PREPARE FILTERED SUPPLIER INFO FOR REQUESTOR
+		connect authorisersvc to contractsvc;
+		getContracts(uuid) from authorisersvc to contractsvc;
+		getContractsRtn(contractdetails) from contractsvc to authorisersvc;
+		do FilterInfo <filterContract(usercontext, filters, contractdetails)> (authorisersvc, filtersvc);
+		disconnect authorisersvc and contractsvc;
+		contracts() from authorisersvc to requestor;
+	}
+}
+
+aux global protocol FilterInfo < sig Query > (  role authorisersvc,  filtersvc ) {
+	Query from authorisersvc to filtersvc;
+	filtered() from filtersvc to authorisersvc;	// How can I disambiguate a return to the autorisersvc between suppliers and contracts???
+}
+
+
