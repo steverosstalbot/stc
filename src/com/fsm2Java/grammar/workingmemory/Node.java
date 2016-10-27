@@ -45,7 +45,13 @@ public class Node {
 	{
 		m_name = n;
 	}
-	public String getName() { return m_name; } // OK
+	public String getName() 
+	{ 
+		String idPart = getId();
+		idPart = idPart.replaceAll("\"","");
+		String newName = m_name + "_" + idPart;
+		return newName; 
+	} // OK
 	public void setDescription(String s)
 	{
 		m_description = s;

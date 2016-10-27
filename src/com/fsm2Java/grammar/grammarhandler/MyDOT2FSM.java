@@ -123,40 +123,6 @@ public class MyDOT2FSM {
     {
     	connectGraph();
     	normaliseGraph();
-    	Edge prev_e = null;
-    	Edge this_e = null;
-    	ArrayList<Edge> listOfe = WMSingleton.getWorkingMemory().getEdges();
-    	System.out.println("Edges - " + listOfe.size());
-
-    	for (int i=0; (i < listOfe.size()); i++)
-    	{
-    		prev_e = listOfe.get(i);
-    		for (int j=0; (j < listOfe.size()); j++)
-    		{
-    			this_e = listOfe.get(j);
-    			if ((prev_e.getName().compareTo(this_e.getName()) == 0) && this_e != prev_e)
-    			{
-    				System.out.println("IDENTICAL EDGES " + this_e + "::" + prev_e);
-    			}
-    		}
-    	}
-    	Node prev_n = null;
-    	Node this_n = null;
-    	ArrayList<Node> listOfn = WMSingleton.getWorkingMemory().getNodes();
-    	System.out.println("Nodes - " + listOfn.size());
-
-    	for (int i=0; (i < listOfn.size()); i++)
-    	{
-    		prev_n = listOfn.get(i);
-    		for (int j=0; (j < listOfn.size()); j++)
-    		{
-    			this_n = listOfn.get(j);
-    			if ((prev_n.getName().compareTo(this_n.getName()) == 0) && this_n != prev_n)
-    			{
-    				System.out.println("IDENTICAL NODES " + this_n + "::" + prev_n);
-    			}
-    		}
-    	}
     }
     
     //

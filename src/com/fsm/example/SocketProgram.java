@@ -171,14 +171,16 @@ public class SocketProgram
         	//
         	// Big loop to process states
         	//
+        	currentState = f.getCurrentState();
+        	nextStates = f.getNextStates();
+        	validActions = f.getValidActions();
+        	validCommands = f.getValidCommands();
+        	items = validCommands;
+
         	int loop = 0;
             while (items.length > 0)
             {          
-            	currentState = f.getCurrentState();
-            	nextStates = f.getNextStates();
-            	validActions = f.getValidActions();
-            	validCommands = f.getValidCommands();
-            	items = validCommands;
+
             	
             	Boolean clr = commandLineRequest(items);
 
@@ -219,13 +221,17 @@ public class SocketProgram
         			choice = doClient(clr, items);	
            		whatINeedToDo(validCommands[choice].trim());
             	//Thread.sleep(2000);
-
            		
                 if (f.ProcessFSM(validCommands[choice].trim()) == null)
                 {
                 	System.out.println("*** ERROR ***");
                 	System.out.println("    <" + validCommands[choice].trim() + "> has no matching state transition");
                 }	
+            	currentState = f.getCurrentState();
+            	nextStates = f.getNextStates();
+            	validActions = f.getValidActions();
+            	validCommands = f.getValidCommands();
+            	items = validCommands;
             	loop++;
             }
             System.out.println("FINISHED!");
@@ -315,7 +321,13 @@ public class SocketProgram
 	        	//System.out.println("Waiting at " + listenTo);
 	        	BufferedReader br = new BufferedReader(new InputStreamReader(listenTo.getSocket().getInputStream()));
 	            command = br.readLine();
-	            System.out.println(command);
+	            for (int i=0; (i < items.length); i++)
+	            {
+	            	String s = items[i].trim();
+	            	if (s.compareTo(command.trim()) == 0)
+	            		choice = i;
+	            }
+	            System.out.println(command + "- received (" + choice + ").");
 			}
     	}
     	catch (Exception e)
@@ -345,7 +357,13 @@ public class SocketProgram
 				//System.out.println("Waiting at " + target);
     		    BufferedReader br = new BufferedReader(new InputStreamReader(target.getSocket().getInputStream()));
     		    command = br.readLine();
-    		    System.out.println(command);
+	            for (int i=0; (i < items.length); i++)
+	            {
+	            	String s = items[i].trim();
+	            	if (s.compareTo(command.trim()) == 0)
+	            		choice = i;
+	            }
+	            System.out.println(command + "- received (" + choice + ").");
 			} 
     	}
     	catch (Exception e)
@@ -401,8 +419,8 @@ public class SocketProgram
     {
     	String m = createDuelCommand(msg);
     	DNSEntry target = getDNS().findDNSEntryForServer(getRoleFromMessage(msg));
-		System.out.println(msg);
-		System.out.println("SEND <" + m + "> to "+ target);
+		//System.out.println(msg);
+		//System.out.println("SEND <" + m + "> to "+ target);
 		// Send m to target
 		try
 		{
@@ -424,17 +442,17 @@ public class SocketProgram
     {
     	String m = createDuelCommand(msg);
     	DNSEntry target = getDNS().findDNSEntryForServer(getRoleFromMessage(msg));
-		System.out.println("request_disconnection");
+		//System.out.println("request_disconnection");
 		// Send the paired duel message m to the target
 		// And then collect up the socket as a client socket.
-		System.out.println("SEND <" + m + "> from " + target);
+		//System.out.println("SEND <" + m + "> from " + target);
 		try
 		{
-			Socket s = target.getSocket();
-			PrintStream output = new PrintStream(target.getSocket().getOutputStream());
-			output.println(m);
-			output.flush();
-			target.getSocket().close();
+			//Socket s = target.getSocket();
+			//PrintStream output = new PrintStream(target.getSocket().getOutputStream());
+			//output.println(m);
+			//output.flush();
+			//target.getSocket().close();
 			target.setClientRoleName("client");
 			target.setSocket(null);
 		}
@@ -448,8 +466,8 @@ public class SocketProgram
     {
     	String m = createDuelCommand(msg);
     	DNSEntry me = getDNS().findDNSEntryForServer(getThisRoleName());
-		System.out.println("accept_connection");
-		System.out.println("Housekeeping... " + m);
+		//System.out.println("accept_connection");
+		//System.out.println("Housekeeping... " + m);
 		me.setClientRoleName(getRoleFromMessage(msg).trim());
     }
     
@@ -465,13 +483,13 @@ public class SocketProgram
 		String toRole = getRoleFromMessage(msg).trim();
 		String fromRole = getRoleFromMessage(m).trim();
 		DNSEntry sendTo = getDNS().findDNSEntryForClientServer(toRole, fromRole);
-		System.out.println("toRole(" + toRole + ") fromRole(" + fromRole +")");
-		System.out.println("SEND <" + m + " to " + sendTo);
+		//System.out.println("toRole(" + toRole + ") fromRole(" + fromRole +")");
+		//System.out.println("SEND <" + m + " to " + sendTo);
 		try
 		{
 			if (sendTo == null) // to deal with implicit connection
 			{
-				System.out.println("Implicit connection to <" + toRole + ">");
+				//System.out.println("Implicit connection to <" + toRole + ">");
 				sendTo = getDNS().findDNSEntryForServer(toRole);
 				sendTo.setClientRoleName(getThisRoleName());
 	    		Socket s = new Socket(sendTo.getIP(), new Integer(sendTo.getPort()));
@@ -483,7 +501,7 @@ public class SocketProgram
 			PrintStream output = new PrintStream(sendTo.getSocket().getOutputStream());
 			output.println(m);
 			output.flush();
-			System.out.println("SENT <" + m + " to " + sendTo);
+			//System.out.println("SENT <" + m + " to " + sendTo);
 		}
 		catch (Exception e)
 		{

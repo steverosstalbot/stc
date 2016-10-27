@@ -80,7 +80,10 @@ public class Edge {
 	{
 		m_messageId = m;
 	}
-	public String getMessageId() { return m_messageId; }
+	public String getMessageId() 
+	{ 
+		return m_messageId; 
+	}
 	public void setActionName(String a)
 	{
 		m_actionName = a;
@@ -101,7 +104,20 @@ public class Edge {
 	{
 		m_name = n;
 	}
-	public String getName() { return m_name; }
+	public String getName() 
+	{
+		String idPart = getToName();
+		idPart = idPart.replaceAll("\"\"", "_");
+		idPart = idPart.replaceAll("\"","");
+		String namePart = "_" + idPart + "(";
+		String rtn = m_name.replace("(", namePart);
+		//System.out.println("getName()");
+		//System.out.println("    <" + idPart + ">");
+		//System.out.println("    <" + namePart + ">");
+		//System.out.println("    <" + rtn + ">");
+		
+		return m_name; 
+	}
 	public void setTo(String t)
 	{
 		m_to = t;
