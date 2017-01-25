@@ -56,9 +56,9 @@ public class SocketProgram
     public Boolean server() { return !client(); }
     public void setDNS(String f) { m_dns = new FakeDNS(f); m_dns.loadDNS(); }
     public FakeDNS getDNS() { return m_dns; }
-    public DNSEntry lookUpServer(String r) { return getDNS().findDNSServerEntry(r); }
-    public DNSEntry lookUpClient(String r) { return getDNS().findDNSClientEntry(r); }
-    public DNSEntry lookUpClientServer(String cs) { return getDNS().findDNSClientServerEntry(cs); }
+    public SocketDNSEntry lookUpServer(String r) { return getDNS().findDNSServerEntry(r); }
+    public SocketDNSEntry lookUpClient(String r) { return getDNS().findDNSClientEntry(r); }
+    public SocketDNSEntry lookUpClientServer(String cs) { return getDNS().findDNSClientServerEntry(cs); }
 
     
     public void setThisRoleName(String r) { m_thisRoleName = r; }
@@ -166,7 +166,8 @@ public class SocketProgram
             //
             // The sendMessage option always has the destination so consider that!!
             //
-        	DNSEntry me = getDNS().findDNSEntryForServer(getThisRoleName());
+        	SocketDNSEntry me = getDNS().findDNSEntryForServer(getThisRoleName());
+        	System.out.println("my DNS entry is [" + me + "]");
 
         	//
         	// Big loop to process states
@@ -186,20 +187,9 @@ public class SocketProgram
 
             	if (loop == 0 && server()) // Initialise server and output first set of states because of the accept
             	{
-            			//System.out.println("Creating ServerSocket for " + server);
-            			ServerSocket ss = new ServerSocket(new Integer(me.getPort()));
-            			me.setServerSocket(ss);
-            			//System.out.println("ServerSocket set for " + server);
-            			
             			// START
             			doPreamble(clr,f);
-            			//END
-            			
-            			// This bit needs to be done before an accept otherwise it waits until accept is answered
-            			Socket s = me.getServerSocket().accept();
-            			me.setSocket(s);
-            			// Set the client role name to the role in the first message we can receive
-            			me.setClientRoleName(getRoleFromMessage(items[0].trim()));
+            			me.configureServerConnection(getRoleFromMessage(items[0].trim()));
             	} else {
             			doPreamble(clr,f);
             	}
@@ -267,7 +257,7 @@ public class SocketProgram
     	// Telling the process what it can do
     	//
     	System.out.println("====== "+ f.getCurrentState() + " =======");
-    	ArrayList<DNSEntry> list = getDNS().getDNSMap();
+    	ArrayList<SocketDNSEntry> list = getDNS().getDNSMap();
     	for (int i=0; (i < list.size()); i++)
     	{
     		System.out.println("    " + list.get(i));
@@ -291,18 +281,20 @@ public class SocketProgram
     
     public Integer doServer(Boolean clr, String items[])
     {
-		DNSEntry me = getDNS().findDNSEntryForServer(getThisRoleName());
+		SocketDNSEntry me = getDNS().findDNSEntryForServer(getThisRoleName());
     	String command = "";
     	Integer choice = 0;
     	try
     	{
 			if (clr) 	// If the next set of actions are requests of some sort then get the input from the command line
 			{
-				BufferedReader bufferRead = new BufferedReader(new InputStreamReader(System.in));
-	    		String entry = bufferRead.readLine();
-	    		choice = new Integer(entry);
+				System.out.println("items length is " + items.length);
+					BufferedReader bufferRead = new BufferedReader(new InputStreamReader(System.in));
+					String entry = bufferRead.readLine();
+					choice = new Integer(entry);
+				
 	    		command = items[choice];
-	            System.out.println(command + "- selected.");
+	           // System.out.println(command + "- selected.");
 			}
 			else 				// otherwise they must be receives or accepts
 			{
@@ -311,7 +303,7 @@ public class SocketProgram
 				// 		Receive accept on socket for me
 				// 		If next state is accept_connection then it's me
 				// 		If next state is anything else other than 
-				DNSEntry listenTo = me;
+				SocketDNSEntry listenTo = me;
 				if (getRoleFromMessage(items[0]).trim().compareTo(getThisRoleName()) != 0)
 				{
 					listenTo = getDNS().findDNSEntryForClientServer(getThisRoleName(),getRoleFromMessage(items[0]).trim());
@@ -319,15 +311,15 @@ public class SocketProgram
 						listenTo = getDNS().findDNSEntryForClientServer(getThisRoleName(),"client");
 				}
 	        	//System.out.println("Waiting at " + listenTo);
-	        	BufferedReader br = new BufferedReader(new InputStreamReader(listenTo.getSocket().getInputStream()));
-	            command = br.readLine();
+	            command = listenTo.receive();
 	            for (int i=0; (i < items.length); i++)
 	            {
 	            	String s = items[i].trim();
 	            	if (s.compareTo(command.trim()) == 0)
 	            		choice = i;
 	            }
-	            System.out.println(command + "- received (" + choice + ").");
+	            //System.out.println();
+	            //System.out.println(command + "- received (" + choice + ").");
 			}
     	}
     	catch (Exception e)
@@ -339,7 +331,7 @@ public class SocketProgram
     
     public Integer doClient(Boolean clr, String items[])
     {
-		DNSEntry target = getDNS().findDNSEntryForServer(getRoleFromMessage(items[0]).trim());
+		SocketDNSEntry target = getDNS().findDNSEntryForServer(getRoleFromMessage(items[0]).trim());
     	String command = "";
     	Integer choice = 0;
     	try
@@ -351,19 +343,19 @@ public class SocketProgram
 	    		String entry = bufferRead.readLine();
 	    		choice = new Integer(entry);
 	    		command = items[choice];
-	            System.out.println(command + "- selected.");
+	            //System.out.println(command + "- selected.");
 			} else {
 				// Receive accept on socket for target
 				//System.out.println("Waiting at " + target);
-    		    BufferedReader br = new BufferedReader(new InputStreamReader(target.getSocket().getInputStream()));
-    		    command = br.readLine();
+    		    command = target.receive();
 	            for (int i=0; (i < items.length); i++)
 	            {
 	            	String s = items[i].trim();
 	            	if (s.compareTo(command.trim()) == 0)
 	            		choice = i;
 	            }
-	            System.out.println(command + "- received (" + choice + ").");
+	            //System.out.println();
+	            //System.out.println(command + "- received (" + choice + ").");
 			} 
     	}
     	catch (Exception e)
@@ -378,7 +370,7 @@ public class SocketProgram
 
     	try
     	{
-	    	System.out.println("Processing Message: <" + msg + ">");
+	    	//System.out.println("Processing Message: <" + msg + ">");
 	    	// I am sending a request connection to some server
 	    	// and they will receive an accept_connection
 	    	if (msg.contains("request_connection")) // SEND ACCEPT
@@ -401,7 +393,8 @@ public class SocketProgram
 	    	} 
 	    	else if (msg.contains("receiveMessage"))
 	    	{
-	    		System.out.println("Finished processing received message " + msg);
+	    		;
+	    		//System.out.println("Finished processing received message " + msg);
 	    	}
 	    	else
 	    	{
@@ -415,22 +408,21 @@ public class SocketProgram
     	}
     }
     
+    //
+    // This is a client requesting a connection to a server
+    //
     public void requestConnection(String msg)
     {
     	String m = createDuelCommand(msg);
-    	DNSEntry target = getDNS().findDNSEntryForServer(getRoleFromMessage(msg));
+    	SocketDNSEntry target = getDNS().findDNSEntryForServer(getRoleFromMessage(msg));
 		//System.out.println(msg);
 		//System.out.println("SEND <" + m + "> to "+ target);
 		// Send m to target
 		try
 		{
+			target.configureClientConnection(getThisRoleName());
 			Socket s = new Socket(target.getIP(), new Integer(target.getPort()));
-			target.setSocket(s);
-			target.setClientRoleName(getThisRoleName());
-			
-			PrintStream output = new PrintStream(target.getSocket().getOutputStream());
-			output.println(m);
-			output.flush();
+			target.send(m);
 		}
 		catch (Exception e)
 		{
@@ -441,7 +433,7 @@ public class SocketProgram
     public void requestDisconnection(String msg)
     {
     	String m = createDuelCommand(msg);
-    	DNSEntry target = getDNS().findDNSEntryForServer(getRoleFromMessage(msg));
+    	SocketDNSEntry target = getDNS().findDNSEntryForServer(getRoleFromMessage(msg));
 		//System.out.println("request_disconnection");
 		// Send the paired duel message m to the target
 		// And then collect up the socket as a client socket.
@@ -453,8 +445,7 @@ public class SocketProgram
 			//output.println(m);
 			//output.flush();
 			//target.getSocket().close();
-			target.setClientRoleName("client");
-			target.setSocket(null);
+			target.deConfigureClient(m);
 		}
 		catch (Exception e)
 		{
@@ -465,10 +456,10 @@ public class SocketProgram
     public void acceptConnection(String msg)
     {
     	String m = createDuelCommand(msg);
-    	DNSEntry me = getDNS().findDNSEntryForServer(getThisRoleName());
+    	SocketDNSEntry me = getDNS().findDNSEntryForServer(getThisRoleName());
 		//System.out.println("accept_connection");
 		//System.out.println("Housekeeping... " + m);
-		me.setClientRoleName(getRoleFromMessage(msg).trim());
+		me.configureClient(getRoleFromMessage(msg).trim());
     }
     
 	//
@@ -482,7 +473,7 @@ public class SocketProgram
     	String m = createDuelCommand(msg);
 		String toRole = getRoleFromMessage(msg).trim();
 		String fromRole = getRoleFromMessage(m).trim();
-		DNSEntry sendTo = getDNS().findDNSEntryForClientServer(toRole, fromRole);
+		SocketDNSEntry sendTo = getDNS().findDNSEntryForClientServer(toRole, fromRole);
 		//System.out.println("toRole(" + toRole + ") fromRole(" + fromRole +")");
 		//System.out.println("SEND <" + m + " to " + sendTo);
 		try
@@ -491,16 +482,12 @@ public class SocketProgram
 			{
 				//System.out.println("Implicit connection to <" + toRole + ">");
 				sendTo = getDNS().findDNSEntryForServer(toRole);
-				sendTo.setClientRoleName(getThisRoleName());
-	    		Socket s = new Socket(sendTo.getIP(), new Integer(sendTo.getPort()));
-	    		sendTo.setSocket(s);
+				sendTo.configureClient(getThisRoleName());
 			}
 	
 			// This means that the client will send a message to the server
 			// Which translates to sending message m to the target
-			PrintStream output = new PrintStream(sendTo.getSocket().getOutputStream());
-			output.println(m);
-			output.flush();
+			sendTo.send(m);
 			//System.out.println("SENT <" + m + " to " + sendTo);
 		}
 		catch (Exception e)

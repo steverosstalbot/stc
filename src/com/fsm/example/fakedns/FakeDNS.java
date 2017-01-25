@@ -16,10 +16,10 @@ import com.fsm.example.Program;
 public class FakeDNS {
 	
 	private String	m_dnsFileName = "fakedns/ipconfig.txt";
-	private HashMap<String, DNSEntry>	m_dnsMapByServerRoleName = new HashMap<String, DNSEntry>();
-	private HashMap<String, DNSEntry>	m_dnsMapByClientRoleName = new HashMap<String, DNSEntry>();
-	private HashMap<String, DNSEntry>	m_dnsMapByClientServerRoleName = new HashMap<String, DNSEntry>();
-	private ArrayList<DNSEntry>			m_dnsMap = new ArrayList<DNSEntry>();
+	private HashMap<String, SocketDNSEntry>	m_dnsMapByServerRoleName = new HashMap<String, SocketDNSEntry>();
+	private HashMap<String, SocketDNSEntry>	m_dnsMapByClientRoleName = new HashMap<String, SocketDNSEntry>();
+	private HashMap<String, SocketDNSEntry>	m_dnsMapByClientServerRoleName = new HashMap<String, SocketDNSEntry>();
+	private ArrayList<SocketDNSEntry>			m_dnsMap = new ArrayList<SocketDNSEntry>();
 	public FakeDNS()
 	{
 		
@@ -55,7 +55,7 @@ public class FakeDNS {
 					role = items.get(0);
 					ip = items.get(1);
 					port = items.get(2);
-					DNSEntry e = new DNSEntry(role,ip,port);
+					SocketDNSEntry e = new SocketDNSEntry(role,ip,port);
 					//addDNSEntryToServerMap(e);
 					addDNSEntry(e);
 				} else {
@@ -84,51 +84,51 @@ public class FakeDNS {
 		return rtn;
 	}
 	
-	public void addDNSEntryToServerMap(DNSEntry d)
+	public void addDNSEntryToServerMap(SocketDNSEntry d)
 	{
 		if (m_dnsMapByClientRoleName.get(d.getServerRoleName()) == null)
 			m_dnsMapByServerRoleName.put(d.getServerRoleName(), d);
 	}
-	public DNSEntry findDNSServerEntry(String r)
+	public SocketDNSEntry findDNSServerEntry(String r)
 	{
-		DNSEntry d = m_dnsMapByServerRoleName.get(r);
+		SocketDNSEntry d = m_dnsMapByServerRoleName.get(r);
 		return d;
 	}
-	public ArrayList<DNSEntry> getDNSServerEntries()
+	public ArrayList<SocketDNSEntry> getDNSServerEntries()
 	{
-		ArrayList<DNSEntry> list = new ArrayList<DNSEntry>(m_dnsMapByServerRoleName.values());
+		ArrayList<SocketDNSEntry> list = new ArrayList<SocketDNSEntry>(m_dnsMapByServerRoleName.values());
 		return list;
 	}
-	public void addDNSEntryToClientMap(DNSEntry d)
+	public void addDNSEntryToClientMap(SocketDNSEntry d)
 	{
 		if (m_dnsMapByClientRoleName.get(d.getClientRoleName()) == null)
 			m_dnsMapByClientRoleName.put(d.getClientRoleName(), d);
 	}
-	public DNSEntry findDNSClientEntry(String r)
+	public SocketDNSEntry findDNSClientEntry(String r)
 	{
-		DNSEntry d = m_dnsMapByClientRoleName.get(r);
+		SocketDNSEntry d = m_dnsMapByClientRoleName.get(r);
 		return d;
 	}
-	public ArrayList<DNSEntry> getDNSClientEntries()
+	public ArrayList<SocketDNSEntry> getDNSClientEntries()
 	{
-		ArrayList<DNSEntry> list = new ArrayList<DNSEntry>(m_dnsMapByClientRoleName.values());
+		ArrayList<SocketDNSEntry> list = new ArrayList<SocketDNSEntry>(m_dnsMapByClientRoleName.values());
 		return list;
 	}
 	
-	public void addDNSEntryToClientServerMap(DNSEntry d)
+	public void addDNSEntryToClientServerMap(SocketDNSEntry d)
 	{
 		if (m_dnsMapByClientServerRoleName.get(d.getClientRoleName()+":"+d.getServerRoleName()) == null)
 			m_dnsMapByClientServerRoleName.put(d.getClientRoleName()+":"+d.getServerRoleName(), d);
 	}
-	public void removeDNSEntryToClientServerMap(DNSEntry d)
+	public void removeDNSEntryToClientServerMap(SocketDNSEntry d)
 	{
 		m_dnsMapByClientServerRoleName.remove(d);
 	}
-	public void addDNSEntry(DNSEntry d)
+	public void addDNSEntry(SocketDNSEntry d)
 	{
 		m_dnsMap.add(d);
 	}
-	public DNSEntry findDNSEntry(DNSEntry d)
+	public SocketDNSEntry findDNSEntry(SocketDNSEntry d)
 	{
 		for (int i=0; (i < m_dnsMap.size()); i++)
 		{
@@ -139,7 +139,7 @@ public class FakeDNS {
 		}
 		return null;
 	}
-	public DNSEntry findDNSEntryForServer(String s)
+	public SocketDNSEntry findDNSEntryForServer(String s)
 	{
 		for (int i=0; (i < m_dnsMap.size()); i++)
 		{
@@ -150,7 +150,7 @@ public class FakeDNS {
 		}
 		return null;
 	}
-	public DNSEntry findDNSEntryForClient(String c)
+	public SocketDNSEntry findDNSEntryForClient(String c)
 	{
 		for (int i=0; (i < m_dnsMap.size()); i++)
 		{
@@ -161,12 +161,12 @@ public class FakeDNS {
 		}
 		return null;
 	}
-	public DNSEntry findDNSEntryForClientServer(String c, String s)
+	public SocketDNSEntry findDNSEntryForClientServer(String c, String s)
 	{
 		//System.out.println("findDNSEntryForClientServer<" + c + "><" + s + ">");
 		for (int i=0; (i < m_dnsMap.size()); i++)
 		{
-			DNSEntry e = m_dnsMap.get(i);
+			SocketDNSEntry e = m_dnsMap.get(i);
 			//System.out.println(e);
 			if ((e.getServerRoleName().compareTo(s) == 0) && (e.getClientRoleName().compareTo(c) == 0) ||
 				(e.getServerRoleName().compareTo(c) == 0) && (e.getClientRoleName().compareTo(s) == 0))
@@ -175,7 +175,7 @@ public class FakeDNS {
 		System.out.println("Found nothing for <" + c + "><" + s + ">");
 		return null;
 	}
-	public void removeDNSEntry(DNSEntry d)
+	public void removeDNSEntry(SocketDNSEntry d)
 	{
 		for (int i=0; (i < m_dnsMap.size()); i++)
 		{
@@ -185,19 +185,19 @@ public class FakeDNS {
 			}
 		}
 	}
-	public ArrayList<DNSEntry> getDNSMap()
+	public ArrayList<SocketDNSEntry> getDNSMap()
 	{
 		return m_dnsMap;
 	}
 	
-	public DNSEntry findDNSClientServerEntry(String r)
+	public SocketDNSEntry findDNSClientServerEntry(String r)
 	{
-		DNSEntry d = m_dnsMapByClientServerRoleName.get(r);
+		SocketDNSEntry d = m_dnsMapByClientServerRoleName.get(r);
 		return d;
 	}
-	public ArrayList<DNSEntry> getDNSClientServerEntries()
+	public ArrayList<SocketDNSEntry> getDNSClientServerEntries()
 	{
-		ArrayList<DNSEntry> list = new ArrayList<DNSEntry>(m_dnsMapByClientServerRoleName.values());
+		ArrayList<SocketDNSEntry> list = new ArrayList<SocketDNSEntry>(m_dnsMapByClientServerRoleName.values());
 		return list;
 	}
 	
@@ -213,10 +213,10 @@ public class FakeDNS {
         } catch (Exception ex) {
         	ex.printStackTrace();
         }
-        ArrayList<DNSEntry> l = dns.getDNSServerEntries();
+        ArrayList<SocketDNSEntry> l = dns.getDNSServerEntries();
         for (int i=0; (i < l.size()); i++)
         {
-        	DNSEntry d = l.get(i);
+        	SocketDNSEntry d = l.get(i);
         	System.out.println("Entry " + i + "<" + d.getServerRoleName() + "><" + d.getIP() + "><" + d.getPort() + ">");
         }  
     }
