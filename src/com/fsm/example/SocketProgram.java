@@ -3,10 +3,6 @@ package com.fsm.example;
  * This is a simple version of the easyFSM example without any action overriding. So it is
  * as simple as it can be.
  **/
-import Action.FSMAction;
-import States.FSMStateAction;
-import FSM.FSM;
-
 import java.io.*;
 import java.util.logging.*;
 import java.util.ArrayList;
@@ -25,6 +21,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import com.fsm.example.fakedns.*;
+import com.scribble.easyfsm.Action.FSMAction;
+import com.scribble.easyfsm.FSM.FSM;
+import com.scribble.easyfsm.States.FSMStateAction;
 
 public class SocketProgram 
 {

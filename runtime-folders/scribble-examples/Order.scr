@@ -1,0 +1,156 @@
+module Order;
+
+
+
+//*/
+explicit global protocol Scenario2(role C, role S)
+{
+	13() connect C to S;  // Submit
+	15() from S to C;  // Quote
+
+	choice at C
+	{
+		16() from C to S;  // Negotiate
+		18() from S to C;  // Quote
+	}
+	or
+	{
+		19() from C to S;  // Accept
+	}
+	or
+	{
+		21() from C to S;  // Decline
+	}
+}
+//*/
+
+
+
+explicit global protocol Scenario4(role C, role S, role V)
+{
+	// Amend, Reject, Accept
+	do Scenario4and5<42(), 43(), 44(), 45(), 46(), 47()>(C, S, V);
+}
+
+explicit global protocol Scenario5(role C, role S, role V)
+{
+	// Cancel, Reject, Accept
+	do Scenario4and5<48(), 49(), 50(), 51(), 52(), 53()>(C, S, V);
+}
+
+aux explicit global protocol Scenario4and5
+		<sig M1a, sig M1b, sig M2a, sig M2b, sig M3a, sig M3b>
+		(role C, role S, role V)
+{
+	M1a connect C to S;
+	M1b connect S to V;
+
+	choice at V
+	{
+		M2a from V to S;
+		M2b from V to S;
+	}
+	or
+	{
+		M3a from V to S;
+		M3b from V to S;
+	}
+}
+
+
+
+//* // N.B. Needs -fair
+explicit global protocol Scenario3(role C, role S, role V)
+{
+	23() connect C to S;	// Submit
+
+	//27() from C to S;  // TODO: Cancel
+
+	choice at S
+	{
+		24() from S to C;  // Reject
+	}
+	or
+	{
+		rec Loop
+		{
+			30() connect S to V;  // Submit  // Subsumes 32/33
+
+			choice at V
+			{
+				31() from V to S;  // Reject
+
+				disconnect S and V;
+
+				continue Loop;
+			}
+			or
+			{
+				34() from V to S;  // Ack
+				35() from S to C;  // Ack // TODO: [opt]
+
+				36() from V to S;  // Updated
+				37() from S to C;  // Updated
+
+				38() from V to S;  // Fill
+				39() from S to C;  // Fill
+			}
+		}
+	}
+}
+//*/
+
+
+
+//*
+explicit global protocol Scenario1(role C, role S)
+{
+	connect C to S;  // TODO: ?
+
+	3() from S to C;  // Distribute
+
+	choice at C
+	{
+		5() from C to S;  // Actioned
+		6() from S to C;  // Claimed
+	}
+	or
+	{
+		timeout() from C to S;  // TODO: Extra message
+
+		choice at S
+		{
+			8() from S to C;  // Cancelled  // N.B. Also subsumes 10
+		}
+		or
+		{
+			12() from S to C;  // Expired
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
